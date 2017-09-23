@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="top-bar">
+    <div class="brand">
+      <a class="page-link" data-go-to-page="landing-page">Brandname</a>
+    </div>
+    <div class="navigation">
+      <!-- 
+        Navigation will be inserted dynamically from get-menu.php
+        It's sort of awful to have markup in the php file, but this
+        way the user will only see relevant navigation if logged in
+      -->
+      
+    </div>
+  </div>
+
+  <div id="spinner" class="spinner-container">
+    <div class="spinner">
+    </div>
+    <p></p>
+  </div>
+
+  <!-- Landing page -->
+  <div class="page" data-page-id="landing-page">
+    <div class="container u_t-c">
+      <h2>Welcome</h2>
+
+      <p class="u_mb-xl">This is a custom cms-system that lets you create, update and delete users and associated products. Get started by:</p>
+      <a class="page-link button invisible u_no-float" data-go-to-page="add-user">Creating a new user <i class="material-icons">add</i></a>
+      <a class="page-link button positive u_no-float" data-go-to-page="login">Sign In <i class="material-icons">arrow_forward</i></a>
+    </div>
+  </div>
+  
+  <!-- Sign in -->
+  <div class="page" data-page-id="login">
+    <div class="container small">
+      <h2>Sign in</h2>
+      <div class="txtLoginStatus message error">
+        <p>Could not login. Check your info again.</p>
+      </div>
+      <form id="frmLogIn">
+        <label for="txtMailOrPhone">Email or phone number:</label>
+        <input type="text" name="txtMailOrPhone" placeholder="Enter your email adress or phone number">
+        <label for="txtPassword">Password:</label>
+        <input type="password" name="txtPassword" class="u_mb-lg">
+        <a tabindex="1" id="btnSignIn" class="button positive">Sign in  <i class="material-icons">arrow_forward</i></a>
+        <a class="page-link button invisible" data-go-to-page="add-user"> Not a member? Sign up here <i class="material-icons">add</i></a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sign up -->
+  <div class="page" data-page-id="add-user">
+    <div class="container small">
+      <h2>Sign up</h2>
+      <form id="frmSignUp">
+        <label for="txtFirstName">First Name</label>
+        <input type="text" name="txtFirstName">
+
+        <label for="txtLastName">Last Name</label>
+        <input type="text" name="txtLastName">
+
+        <label for="txtPhone">Phone number</label>
+        <input type="phone" name="txtPhone">
+
+        <label for="txtEmail">Email adress</label>
+        <input type="email" name="txtEmail">
+
+        <label for="filePicture">Profile picture</label>
+        <input type="file" name="fileProfilePicture">
+
+        <label for="txtPassword">Password</label>
+        <input type="password" name="txtPassword">
+
+        <label for="txtUserRole">Select a user role</label>
+        <select name="txtUserRole" class="u_mb-xl">
+          <option value="user">Standard</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        <a id="btnSignUp" class="button positive">Signup <i class="material-icons">arrow_forward</i></a>
+        <a class="page-link button invisible" data-go-to-page="login"><i class="material-icons">arrow_back</i> Cancel</a>
+        
+      </form>
+    </div>
+  </div>
+  
+  <!-- Will be ajaxed in for all users -->
+  
+
+  <!-- Will be ajaxed in for admins only -->
+  <!-- Manage users -->
+
+    
+  <script src="js/script.js"></script>
+</body>
+</html>
