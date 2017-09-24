@@ -184,19 +184,33 @@ var page = {
     }
   },
   signUp: function() {
-    page.request({
-      type: "POST",
-      url: "api/add-user.php",
-      form: frmSignUp,
-      callback: handleResponse
-    });
-    function handleResponse(res) {
-      if (res.message == "succes") {
-        page.data.currentUser = res.user;
-        page.getInterface();
-        page.clearForm(frmSignUp);
+    page.checkForm(frmSignUp, function(status) {
+      if (status == "ok") {
+        page.request({
+          type: "POST",
+          url: "api/add-user.php",
+          form: frmSignUp,
+          callback: handleResponse
+        });
+        function handleResponse(res) {
+          if (res.status == "succes") {
+            page.data.currentUser = res.user;
+            page.getInterface();
+            page.clearForm(frmSignUp);
+          } else if (res.status == "error") {
+            page.activateMessage(msgAddUserPhoneOrEmailTaken);
+        
+            console.log("Error with adding user");
+            console.log(res);
+          }
+        }
+      } else {
+        console.log("Form is not ok");
+        page.activateMessage(msgAddUserMissingFields);
       }
-    }
+    });
+
+    
   },
   signOut: function() {
     page.request({
@@ -373,18 +387,23 @@ var page = {
    PRODUCTS
   **********************/
   addProduct: function() {
-    //page.activateSpinner();
-    page.activateMessage
-    page.request({
-      type: "POST",
-      url: "api/add-product.php",
-      form: frmAddProduct,
-      callback: function() {
-        page.activateMessage(txtAddProductMessage);
-        page.getProducts();
-        page.clearForm(frmAddProduct);
+    page.checkForm(frmAddProduct, function(status) {
+      if (status == "ok") {
+        page.activateMessage
+        page.request({
+          type: "POST",
+          url: "api/add-product.php",
+          form: frmAddProduct,
+          callback: function() {
+            page.activateMessage(txtAddProductMessage);
+            page.getProducts();
+            page.clearForm(frmAddProduct);
+          }
+        });
+      } else {
+        page.activateMessage(msgAddProductMissingFields)
       }
-    });
+    })
   },
   editProduct: function() {
     page.request({
@@ -660,6 +679,11 @@ var page = {
 
   },
   activateMessage(id) {
+    var activeMessage = document.querySelectorAll(".message.active")
+    for (var i = 0; i < activeMessage.length; i++) {
+      activeMessage[i].classList.remove("active");
+    }
+
     id.classList.add("active");
     setTimeout(function(){
       id.classList.remove("active");
@@ -676,6 +700,37 @@ var page = {
       if (searchList[i].classList.contains(searchWord)) {
         return searchList[i];
       }
+    }
+  },
+  checkForm: function(form, callback) {
+    var errors = 0;
+    for (var i = 0; i < form.children.length; i++) {
+      var curEl = form.children[i];
+      /* 
+        Loop through all children of the form
+        To all children of type input or select (Add more if needed)
+      */
+      if ( 
+        (!curEl.value) &&
+        (curEl.classList.contains("required")) &&
+        (curEl.tagName == "INPUT" || curEl.tagName == "SELECT") 
+      ) {
+        curEl.classList.add("error-value-missing");
+        errors++;
+      } else if ( 
+        (curEl.value) &&
+        (curEl.classList.contains("required")) &&
+        (curEl.classList.contains("error-value-missing")) &&
+        (curEl.tagName == "INPUT" || curEl.tagName == "SELECT") 
+      ) {
+        curEl.classList.remove("error-value-missing");
+      }
+    }
+
+    if (errors == 0) {
+      callback("ok");
+    } else {
+      callback("error");
     }
   },
   clearForm: function(form) {

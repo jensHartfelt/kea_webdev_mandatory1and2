@@ -33,7 +33,7 @@ if ( isset($sUser) ) {
         <input type="email" name="txtEmail">
         
         <label for="fileProfilePicture">New profile picture</label>
-        <input type="file" name="fileProfilePicture">
+        <input type="file" name="fileProfilePicture" accept="image/gif, image/jpeg, image/png">
         
         <label for="txtPassword">New password</label>
         <input type="password" name="txtPassword" class="u_mb-xl">
@@ -78,16 +78,23 @@ if ( isset($sUser) ) {
   <div class="page" data-page-id="add-product">
     <div class="container small">
       <h2>Add product</h2>
+      <!-- Message: Succesfully added product -->
       <div id="txtAddProductMessage" class="message succes">
-        <p>New product added</p>
+      <p>New product added</p>
+      </div>
+      <!-- Message: Cant add product - missing fields -->
+      <div id="msgAddProductMissingFields" class="message error">
+        <p>Please fill out all the required fields to add the product.</p>
       </div>
       <form id="frmAddProduct">
         <label for="txtProductName">Name</label>
-        <input type="text" name="txtProductName" placeholder="Enter product name here">
+        <input type="text" name="txtProductName" placeholder="Enter product name here" class="required">
+
         <label for="txtProductPrice">Price</label>
-        <input type="number" name="txtProductPrice">
+        <input type="number" name="txtProductPrice" class="required">
+
         <label for="fileProductPicture">Picture</label>
-        <input type="file" name="fileProductPicture" class="u_mb-xl">
+        <input type="file" name="fileProductPicture" class="u_mb-xl" accept="image/gif, image/jpeg, image/png">
 
         <a id="btnAddProduct" class="button positive">Add product <i class="material-icons">add</i></a>
         <a class="button invisible">Cancel<i class="material-icons">close</i></a>
@@ -105,7 +112,7 @@ if ( isset($sUser) ) {
         <label for="txtProductPrice">Price</label>
         <input type="number" name="txtProductPrice">
         <label for="fileProductPicture">Picture</label>
-        <input type="file" name="fileProductPicture" class="u_mb-xl">
+        <input type="file" name="fileProductPicture" class="u_mb-xl" accept="image/gif, image/jpeg, image/png">
         <input type="text" name="txtProductId" class="u_hidden">
         <a id="btnEditProduct" class="button positive">Save changes <i class="material-icons">save</i></a>
         <a id="btnDeleteProduct" class="button red">Delete <i class="material-icons">delete</i></a>
@@ -163,24 +170,30 @@ if ( isset($sUser) ) {
   <div class="page" data-page-id="add-user">
     <div class="container small">
       <h2>Sign up</h2>
+      <div id="msgAddUserMissingFields" class="message error">
+        <p>Please fill out all the required fields to sign up.</p>
+      </div>
+      <div id="msgAddUserPhoneOrEmailTaken" class="message error">
+        <p>Email or phone is already taken. Perhaps you forgot your login-informations?</p>
+      </div>
       <form id="frmSignUp">
         <label for="txtFirstName">First Name</label>
-        <input type="text" name="txtFirstName">
+        <input type="text" name="txtFirstName" class="required">
 
         <label for="txtLastName">Last Name</label>
-        <input type="text" name="txtLastName">
+        <input type="text" name="txtLastName" class="required">
 
         <label for="txtPhone">Phone number</label>
-        <input type="phone" name="txtPhone">
+        <input type="phone" name="txtPhone" class="required">
 
         <label for="txtEmail">Email adress</label>
-        <input type="email" name="txtEmail">
+        <input type="email" name="txtEmail" class="required">
 
         <label for="filePicture">Profile picture</label>
-        <input type="file" name="fileProfilePicture">
+        <input type="file" name="fileProfilePicture" accept="image/gif, image/jpeg, image/png"> 
 
         <label for="txtPassword">Password</label>
-        <input type="password" name="txtPassword">
+        <input type="password" name="txtPassword" class="required">
 
         <label for="txtUserRole">Select a user role</label>
         <select name="txtUserRole" class="u_mb-xl">

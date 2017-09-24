@@ -79,6 +79,17 @@ label {
   font-size: 18px;
   font-weight: 100;
 }
+.error-value-missing {
+  border: 1px #f5bdc1 solid;
+  background-color: #fbf4f5;
+  position: relative;
+  animation: error-value-missing 400ms ease;
+}
+@keyframes error-value-missing {
+  0%   {transform: scale(1);}
+  70%  {transform: scale(1.1);}
+  100% {transform: scale(1);}
+}
 a.button {
   font-size: 16px;
   padding: 8px 14px 8px 28px;
@@ -123,23 +134,26 @@ a.button.invisible:hover {
 }
 /* Messages */
 div.message {
+  max-height: 0px;
   border-radius: 3px;
-  padding: 12px 12px 12px 46px;
-  margin: -20px 0 12px 0;
   transform: translateY(20px);
   transform-origin: center;
   position: relative;
   opacity: 0;
   transition: transform 200ms ease, opacity 200ms ease;
 }
-div.message.succes.active { 
+div.message.active {
   transform: translateY(0px);
   opacity: 0.9;
+  padding: 12px 12px 12px 46px;
+  margin: -12px 0 40px 0;
+  max-height: 100px;
+  transform: max-height 200ms ease;
+}
+div.message.succes.active { 
   transition: transform 200ms ease, opacity 200ms ease;
 }
 div.message.error.active {
-  transform: translateY(0px);
-  opacity: 0.9;
   animation: attention 600ms ease;
   /* transition: transform 200ms ease, opacity 200ms ease; */
 }
