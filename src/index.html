@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Custom cms</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
@@ -12,7 +12,7 @@
 <body>
   <div class="top-bar">
     <div class="brand">
-      <a class="page-link" data-go-to-page="landing-page">Brandname</a>
+      <a class="page-link" data-go-to-page="landing-page">Custom cms</a>
     </div>
     <div class="navigation">
       <!-- 
@@ -20,7 +20,6 @@
         It's sort of awful to have markup in the php file, but this
         way the user will only see relevant navigation if logged in
       -->
-      
     </div>
   </div>
   <div id="spinner" class="spinner-container">
@@ -28,21 +27,9 @@
     </div>
     <p></p>
   </div>
-
   <div id="masterContainer">
-
-
+    <!-- As with navigation content will be dynamically inserted here depending on the user role and session-->
   </div>
-
-
-  
-  <!-- Will be ajaxed in for all users -->
-  
-
-  <!-- Will be ajaxed in for admins only -->
-  <!-- Manage users -->
-
-    
   <script src="js/script.js"></script>
 </body>
 </html>

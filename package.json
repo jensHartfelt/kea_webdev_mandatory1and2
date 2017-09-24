@@ -1,0 +1,33 @@
+{
+  "name": "webdevassignment1and2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jensHartfelt/kea_webdev_mandatory1and2.git"
+  },
+  "author": "Jens Hartfelt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jensHartfelt/kea_webdev_mandatory1and2/issues"
+  },
+  "homepage": "https://github.com/jensHartfelt/kea_webdev_mandatory1and2#readme",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-uglify": "^3.0.0"
+  },
+  "devDependencies": {
+    "@cedx/gulp-php-minify": "^6.0.0",
+    "gulp-clean-css": "^3.9.0",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-imagemin": "^3.3.0",
+    "gulp-minify": "^1.0.0",
+    "gulp-remove-html-comments": "^1.0.1",
+    "install": "^0.10.1",
+    "npm": "^5.4.2"
+  }
+}

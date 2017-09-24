@@ -1,0 +1,1 @@
+[{"id":"59c790b6b23eb","role":"user","firstName":"1","lastName":"1","password":"1","email":"1","phone":"1","profilePicture":"59c792575dd82.png"},{"id":"59c7a599058d9","role":"admin","firstName":"Jens","lastName":"Hartfelt","password":"1","email":"1234","phone":"1234","profilePicture":"59c7a599057af.png"}]
