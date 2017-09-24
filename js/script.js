@@ -7,11 +7,9 @@
 var page = {
   // Elements
   els: {
-    body: document.querySelector("body"),
+    masterContainer: document.querySelector("#masterContainer"),
     pages: document.querySelectorAll(".page"),
     navigation: document.querySelector(".navigation"),
-    txtLoginStatus: document.querySelector(".txtLoginStatus"),
-    txtWelcomeMessage: document.querySelector(".txtWelcomeMessage")
   },
   /**
    * Data acts sort of like a store.
@@ -35,8 +33,8 @@ var page = {
   /*************************
    NAVIGATION AND INTERFACE
   *************************/
-
   goTo: function(pageId) {
+    console.log("goTo('"+pageId+"')")
     this.hideAllPages();
     var newPage = document.querySelector('[data-page-id="'+pageId+'"]')
     newPage.classList.add("active");
@@ -59,17 +57,18 @@ var page = {
       });
     }
   },
-  getPages: function() {
+  getPages: function(callback) {
     page.request({
       type: "GET",
       url: "api/get-pages.php",
       callback: handleResponse
     });
     function handleResponse(res) {
-      page.els.body.insertAdjacentHTML("beforeend", res.markup);
+      masterContainer.innerHTML = res.markup;
+      callback();
     }
   },
-  getMenu: function() {
+  getMenu: function(callback) {
     // Make request to api.
     // Api decides if user is logged in and thereby
     // which menu is relevant and returns that as 
@@ -81,9 +80,82 @@ var page = {
     });
     function handleResponse(res) {
       page.els.navigation.innerHTML = res.markup;
-      page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
-      page.updatePageNavigation();
+      if (callback) { 
+        callback();
+      }
     }
+  },
+  getInterface() {
+    /**
+     * NOTE: This function is a little verbose, and might do a little more than what is needed
+     * but it makes it easier to handle all the updating by sort of getting a fresh interface
+     * everytime a critical event happens (like sign-in, sign-out, sign-up, creating, editing and deleting
+     * products and users).
+     * 
+     * It prioritizes in this way:
+     * 1) Get and render the pages (html markup)
+     * 2) Get and render the menu (html markup)
+     * 
+     * <First paint>
+     * 
+     * 2b) Get the products while the rest of the script continues (these doesn't have to be ready
+     *     since they selv-initialize there functionality)
+     * 3) Update all element-references from page.els 
+     * 4) Assign event-listeneres and functionality to all the rendered buttons and elements
+     * 5) Navigate to the product-page
+     * 
+     * <Page is usable>
+     * 
+     * 6) If the user is admin also get the users (this can happen in the back)
+     */
+
+    if (page.data.currentUser) {
+      console.log("User is logged in. Getting pages...");
+
+      page.getPages(waitForPages);
+      function waitForPages() {
+        console.log("Pages rendered. Getting menu...");
+        page.getMenu(waitForMenu);
+        page.getProducts();
+      }
+      function waitForMenu() {
+        console.log("Menu rendered. Updating page.els to match with rendered pages and navigation...");
+        page.updateEls(waitForEls);
+      }
+      function waitForEls() {
+        console.log("Updated page.els and will now attach event-listeners for forms and navigation");
+        page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
+        page.updatePageNavigation();
+        page.goTo("view-products");
+        if (page.data.currentUser == "admin") {
+          console.log("User is admin. Getting all users...")
+          page.getUsers();
+        }
+      }
+    } else {
+      console.log("User is not logged in. Getting pages...");      
+      page.getPages(waitForPages);
+      function waitForPages() {
+        console.log("Pages rendered. Getting menu...");      
+        page.getMenu(waitForMenu);
+      }
+      function waitForMenu() {
+        console.log("Menu rendered. Updating els...");      
+        page.updateEls(waitForEls);
+      }
+      function waitForEls() {
+        console.log("Els updated. Attaching eventlistener...");      
+        page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
+        page.updatePageNavigation();
+        page.goTo("landing-page");
+      }
+    }
+  },
+  updateEls: function(callback) {
+    this.els.masterContainer = document.querySelector("#master-container");
+    this.els.pages = document.querySelectorAll(".page");
+    this.els.navigation = document.querySelector(".navigation");
+    callback();
   },
 
   /**********************
@@ -100,20 +172,10 @@ var page = {
     function handleResponse(res) {
       if (res.login == "ok") {
         page.data.currentUser = res.user;
-        page.getPages();
-        page.goTo("view-products");
-        page.getMenu();
-        page.getProducts();
-        //page.updateEditUserPage();
-        if (res.user.role == "admin") {
-          page.getUsers();
-        }
-       } else {
-        // Error message
-        page.els.txtLoginStatus.classList.add("active");
-        setTimeout(function() {
-          page.els.txtLoginStatus.classList.remove("active");
-        }, 10000)
+        page.getInterface();
+        page.clearForm(frmLogIn);
+      } else {
+        page.activateMessage(txtLoginStatus);
       }
     }
   },
@@ -126,9 +188,9 @@ var page = {
     });
     function handleResponse(res) {
       if (res.message == "succes") {
-        page.goTo("login");
-        page.getMenu();
-        page.getProducts();
+        page.data.currentUser = res.user;
+        page.getInterface();
+        page.clearForm(frmSignUp);
       }
     }
   },
@@ -138,10 +200,9 @@ var page = {
       url: "api/sign-out.php",
       callback: handleResponse
     });
-    function handleResponse(res) {
-      page.goTo("login");
-      page.getMenu();
-      page.data.currentUser = undefined;      
+    function handleResponse() {
+      page.data.currentUser = undefined;
+      page.getInterface();
     }
   },
   editUser: function(e) {
@@ -300,23 +361,11 @@ var page = {
     page.request({
       type: "GET",
       url: "api/is-user-signed-in.php",
-      callback: handleResponse
-    });
-    function handleResponse(res) {
-      if (res.signedIn) {
+      callback: function(res) {
         page.data.currentUser = res.user;
-        page.getPages();
-        page.getMenu();
-        page.getProducts();
-        page.goTo("view-products");
-        if (res.user.role == "admin") {
-          page.getUsers();
-        }
-      } else {
-        page.getMenu();
-        page.goTo("landing-page");
-      }
-    }
+        page.getInterface();
+      },
+    });
   },
 
   /**********************
@@ -332,7 +381,7 @@ var page = {
       callback: function() {
         page.activateMessage(txtAddProductMessage);
         page.getProducts();
-        //page.deactivateSpinner();
+        page.clearForm(frmAddProduct);
       }
     });
   },
@@ -363,7 +412,6 @@ var page = {
     page.request({
       type: "GET",
       url: "api/get-products.php",
-      form: frmAddProduct,
       callback: function(products) {
         page.data.products.all = products;
         page.data.products.visible = products;
@@ -390,20 +438,13 @@ var page = {
 
   },
   renderProducts: function( callback ) {
-    console.log("Rendering products. Soring: "+page.data.products.sorting)
-    /**
-     * This function is called twice..
-     * And i dont get it. It has something to do with the callback initFiltersAndSorting()
-     * but i cant figure out why it would call renderProducts() twice.
-     * 
-     * 
-     */
+    console.log("Rendering products. Sorting: "+page.data.products.sorting)
 
     var sProducts = "";
     var products = page.data.products.visible;
 
     // If a sorting is defined sort the products the way it is defined
-    // before render. Else dont sort the products..
+    // before render. Else dont sort the products by skipping this step
     if (page.data.products.sorting !== "none") {
       products = page.sortProducts(products, "price", page.data.products.sorting);
     }
@@ -634,6 +675,11 @@ var page = {
       if (searchList[i].classList.contains(searchWord)) {
         return searchList[i];
       }
+    }
+  },
+  clearForm: function(form) {
+    for (var i = 0; i < form.children.length; i++) {
+      form.children[i].value = "";
     }
   }
 }

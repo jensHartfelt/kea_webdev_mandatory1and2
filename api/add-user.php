@@ -1,4 +1,5 @@
 <?php 
+session_start();
 
 // Get the image
 $sFileExtension = pathinfo($_FILES['fileProfilePicture']['name'], PATHINFO_EXTENSION);
@@ -31,5 +32,10 @@ file_put_contents('../data/users.txt', $sUsers);
 
 // Maybe do a check and only echo succes
 // if user is actually added 
-echo '{"message":"succes"}';
+$sNewUser = json_encode($jNewUser);
+$_SESSION['sUser'] = $sNewUser;
+echo '{
+  "message":"succes",
+  "user":'.$sNewUser.'
+}';
 ?>
