@@ -19,7 +19,11 @@ $jProduct = json_decode("{}");
 $jProduct->id = uniqid();
 $jProduct->name = $_POST['txtProductName'];
 $jProduct->price = $_POST['txtProductPrice'];
-$jProduct->picture = $sFileName;
+if (!empty($sFileExtension)) {
+  $jProduct->picture = $sFileName;
+} else {
+  $jProduct->picture = "dummy.png";
+}
 $jProduct->createdBy = $sCurrentUserId;
 
 // Save the product

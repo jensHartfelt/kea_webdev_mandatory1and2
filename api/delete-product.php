@@ -17,7 +17,9 @@ for ($i = 0; $i < count($aProducts); $i++) {
     $sFolder = '../images/product-pictures/';
     $sFileName = $aProducts[$i]->picture;
     $sFileLocation = $sFolder.$sFileName;
-    unlink( $sFileLocation );
+    if ($sFileName !== 'dummy.png') {
+      unlink( $sFileLocation );
+    }
 
     // Delete the product
     array_splice($aProducts, $i, 1);

@@ -2,11 +2,13 @@
 session_start();
 
 // Get the image
-$sFileExtension = pathinfo($_FILES['fileProfilePicture']['name'], PATHINFO_EXTENSION);
-$sFolder = '../images/profile-pictures/';
-$sFileName = uniqid().'.'.$sFileExtension;
-$sSaveFileTo = $sFolder.$sFileName;
-move_uploaded_file( $_FILES['fileProfilePicture']['tmp_name'], $sSaveFileTo);
+if ( isset($_FILES['fileProfilePicture']['name']) ) {
+  $sFileExtension = pathinfo($_FILES['fileProfilePicture']['name'], PATHINFO_EXTENSION);
+  $sFolder = '../images/profile-pictures/';
+  $sFileName = uniqid().'.'.$sFileExtension;
+  $sSaveFileTo = $sFolder.$sFileName;
+  move_uploaded_file( $_FILES['fileProfilePicture']['tmp_name'], $sSaveFileTo);
+}
 
 $sUsers = file_get_contents('../data/users.txt');
 $aUsers = json_decode($sUsers);
@@ -34,7 +36,13 @@ $jNewUser->lastName = $_POST['txtLastName'];
 $jNewUser->password = $_POST['txtPassword']; // Are we suppose to encrypt this?
 $jNewUser->email = $_POST['txtEmail'];
 $jNewUser->phone = $_POST['txtPhone'];
-$jNewUser->profilePicture = $sFileName; 
+if (!empty($sFileExtension)) {
+  $profilePicture = '"yes"';
+  $jNewUser->profilePicture = $sFileName; 
+} else {
+  $jNewUser->profilePicture = 'dummy.svg '; 
+  $profilePicture = '"no"';
+}
 // ^^^ The api doesn't tell the client where the 
 // immage is since the api doesn't know 
 // where the image will be requested from.
@@ -51,6 +59,7 @@ $sNewUser = json_encode($jNewUser);
 $_SESSION['sUser'] = $sNewUser;
 echo '{
   "status":"succes",
+  "profilePicture":'.$profilePicture.',
   "user":'.$sNewUser.'
 }';
 ?>

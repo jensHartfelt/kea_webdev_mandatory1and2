@@ -25,7 +25,6 @@ if ( isset($sUser) ) {
     </div>
     <div class="content">
       <a class="page-link" data-go-to-page="edit-user">Edit profile</a>
-      <a class="page-link" data-go-to-page="edit-user">My products</a>
       <div class="seperator"></div>
       <a id="btnSignOut">Sign out</a>
     </div>

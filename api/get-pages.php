@@ -5,6 +5,15 @@ $jResponse = json_decode("{}");
 if ( isset($sUser) ) {
   $jUser = json_decode($sUser);
   $jResponse->markup = '
+  <!-- Landing page -->
+  <div class="page" data-page-id="landing-page">
+    <div class="container u_t-c">
+      <h2>Welcome</h2>
+
+      <p class="u_mb-xl">This is a custom cms-system that lets you create, update and delete users and associated products.</p>
+    </div>
+  </div>
+
   <!-- Edit user -->
   <div class="page" data-page-id="edit-user">
     <div class="container small">

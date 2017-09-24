@@ -27,8 +27,10 @@ for ($i = 0; $i < count($aUsers); $i++) {
     $sFolder = '../images/profile-pictures/';
     $sFileName = $aUsers[$i]->profilePicture;
     $sFileLocation = $sFolder.$sFileName;
-    unlink( $sFileLocation );
-
+    if ($sFileName !== 'dummy.svg') {
+      unlink( $sFileLocation );
+    }
+    
     array_splice($aUsers, $i, 1);
     $sUsers = json_encode($aUsers);
     file_put_contents('../data/users.txt', $sUsers);

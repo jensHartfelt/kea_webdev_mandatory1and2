@@ -1,27 +1,34 @@
 /**
- * In theory and with lots of time, page could be named anything
- * BUT im referencing some stuff inside page with page.<property>
- * insted of this.<property> due to problems with 'this' being an
+ * NOTES:
+ * In theory and with unlimited time, page could be named anything
+ * BUT im referencing some stuff inside page with page.property/method
+ * insted of this.property/method due to problems with 'this' being an
  * event, and me having to acces that events properties. So if page
- * were to be renamed one should do a find and replave for "page."
- * and replace with "whatevernewname."
- * 
+ * were to be renamed one should do a find and replace for "page."
+ * and replace with "whatevernewname.".
+ * I've wrapped the entire script in a self-invoking function to minize
+ * security-problems, with client-side users accesing i.e. data about
+ * themselves and changing their role or id or something. This is not 
+ * really enough since one could potentially just edit the js file with
+ * dev-tools and remove the self-invoking part, but it's better than
+ * nothing i guess.
  */
+(function() {
 var page = {
-  // Elements
   els: {
+    // Elements
     masterContainer: document.querySelector("#masterContainer"),
     pages: document.querySelectorAll(".page"),
     navigation: document.querySelector(".navigation"),
   },
-  /**
-   * Data acts sort of like a store.
-   * It's a primitive way of having a single source of truth, so that all 
-   * "global" variables will only exist in one place. Data has no defined
-   * mutation methods, so data is just directly modified which can lead to
-   * unpredictable outcome.
-   */
   data: {
+    /**
+     * Data acts sort of like a store.
+     * It's a primitive way of having a single source of truth, so that all 
+     * "global" variables will only exist in one place. Data has no defined
+     * mutation methods, so data is just directly modified which can lead to
+     * unpredictable outcome.
+     */
     currentUser: undefined, // <- will be set after request
     products: {
       visible: undefined, // <- will be set when filtering products
@@ -38,31 +45,31 @@ var page = {
    NAVIGATION AND INTERFACE
   *************************/
   goTo: function(pageId) {
-    console.log("goTo('"+pageId+"')")
+    // console.log("goTo('"+pageId+"')");
     this.hideAllPages();
-    var newPage = document.querySelector('[data-page-id="'+pageId+'"]')
+    var newPage = document.querySelector('[data-page-id="'+pageId+'"]');
     newPage.classList.add("active");
   },
   hideAllPages: function() {
-    // var pages is not really needed. It's there to make the code prettier
     for (var i = 0; i < this.els.pages.length; i++) {
       this.els.pages[i].classList.remove("active");
     }
   },
   updatePageNavigation: function() {
+    var self = this;
     var pageLinks = document.querySelectorAll(".page-link");
     for (var i = 0; i < pageLinks.length; i++) {
       pageLinks[i].addEventListener("click", function() {
         var pageLinkId = this.getAttribute("data-go-to-page");
         if (pageLinkId == "edit-user") {
-          page.updateEditUserPage();
+          self.updateEditUserPage();
         }
-        page.goTo(pageLinkId);
+        self.goTo(pageLinkId);
       });
     }
   },
   getPages: function(callback) {
-    page.request({
+    this.request({
       type: "GET",
       url: "api/get-pages.php",
       callback: handleResponse
@@ -77,19 +84,20 @@ var page = {
     // Api decides if user is logged in and thereby
     // which menu is relevant and returns that as 
     // a string
-    page.request({
+    var self = this;
+    this.request({
       type: "GET",
       url: "api/get-menu.php",
       callback: handleResponse
     });
     function handleResponse(res) {
-      page.els.navigation.innerHTML = res.markup;
+      self.els.navigation.innerHTML = res.markup;
       if (callback) { 
         callback();
       }
     }
   },
-  getInterface() {
+  getInterface: function() {
     /**
      * NOTE: This function is a little verbose, and might do a little more than what is needed
      * but it makes it easier to handle all the updating by sort of getting a fresh interface
@@ -103,7 +111,7 @@ var page = {
      * <First paint>
      * 
      * 2b) Get the products while the rest of the script continues (these doesn't have to be ready
-     *     since they selv-initialize there functionality)
+     *     since they selv-initialize their functionality)
      * 3) Update all element-references from page.els 
      * 4) Assign event-listeneres and functionality to all the rendered buttons and elements
      * 5) Navigate to the product-page
@@ -113,47 +121,31 @@ var page = {
      * 6) If the user is admin also get the users (this can happen in the back)
      */
 
-    if (page.data.currentUser) {
-      console.log("User is logged in. Getting pages...");
+    var self = this;
+    var curUser = this.data.currentUser;
 
-      page.getPages(waitForPages);
-      function waitForPages() {
-        console.log("Pages rendered. Getting menu...");
-        page.getMenu(waitForMenu);
-        page.getProducts();
-      }
-      function waitForMenu() {
-        console.log("Menu rendered. Updating page.els to match with rendered pages and navigation...");
-        page.updateEls(waitForEls);
-      }
-      function waitForEls() {
-        console.log("Updated page.els and will now attach event-listeners for forms and navigation");
-        page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
-        page.updatePageNavigation();
-        page.goTo("view-products");
-        if (page.data.currentUser.role == "admin") {
-          console.log("User is admin. Getting all users...")
-          page.getUsers();
-        }
-      }
-    } else {
-      console.log("User is not logged in. Getting pages...");      
-      page.getPages(waitForPages);
-      function waitForPages() {
-        console.log("Pages rendered. Getting menu...");      
-        page.getMenu(waitForMenu);
-      }
-      function waitForMenu() {
-        console.log("Menu rendered. Updating els...");      
-        page.updateEls(waitForEls);
-      }
-      function waitForEls() {
-        console.log("Els updated. Attaching eventlistener...");      
-        page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
-        page.updatePageNavigation();
-        page.goTo("landing-page");
+    self.getPages(waitForPages);
+    function waitForPages() {
+      self.getMenu(waitForMenu);
+      if (curUser) {
+        self.getProducts();
       }
     }
+    function waitForMenu() {
+      self.updateEls(waitForEls);
+    }
+    function waitForEls() {
+      self.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
+      self.updatePageNavigation();
+      if (curUser) {
+        self.goTo("view-products");
+        if (curUser.role == "admin") {
+          self.getUsers();
+        }
+      } else {
+        self.goTo("landing-page");
+      }
+    } 
   },
   updateEls: function(callback) {
     this.els.masterContainer = document.querySelector("#master-container");
@@ -165,7 +157,6 @@ var page = {
   /**********************
    USERS
   **********************/
-  // Sign in
   signIn: function() {
     page.request({
       type: "POST",
@@ -199,18 +190,12 @@ var page = {
             page.clearForm(frmSignUp);
           } else if (res.status == "error") {
             page.activateMessage(msgAddUserPhoneOrEmailTaken);
-        
-            console.log("Error with adding user");
-            console.log(res);
           }
         }
       } else {
-        console.log("Form is not ok");
         page.activateMessage(msgAddUserMissingFields);
       }
     });
-
-    
   },
   signOut: function() {
     page.request({
@@ -235,23 +220,19 @@ var page = {
       callback: handleResponse
     });
     function handleResponse(res) {
-      console.log(res);
-      page.activateMessage(txtEditUserMessage);
-      page.getMenu();
-      page.getProducts();
-      
       if (page.data.currentUser.role == "admin") {
         page.getUsers();
       } else {
         page.data.currentUser = res.user;
       }
+      page.activateMessage(txtEditUserMessage);
+      page.getInterface();
     }
   },
   updateEditUserPage: function(userId) {
     /* A admin has asked to edit a user that isn't the admin itself */
     if (this.data.currentUser.role == "admin" && userId) {
       for (var i = 0; i < this.data.users.all.length; i++) {
-        console.log("looping through users");
         if (this.data.users.all[i].id == userId) {
           var user = this.data.users.all[i];
         }   
@@ -338,7 +319,6 @@ var page = {
     page.enableAdminUserDelete();
   },
   enableAdminUserEdit: function() {
-    console.log("X")
     var btnsEditUser = document.querySelectorAll(".btnAdminEditUser");
     for (var i = 0; i < btnsEditUser.length; i++) {
       btnsEditUser[i].addEventListener("click", function(e) {
@@ -356,16 +336,14 @@ var page = {
       btnsDeleteUser[i].addEventListener("click", function(e) {
         var currentElement = this;
         var currentElementContainer = page.getEl(e.path, "user");
-        /* console.log(this.getAttribute("data-user-id")); */
         var sUserId = this.getAttribute("data-user-id");
         var frmData = new FormData();
         frmData.append("sUserId", sUserId);
-
         page.request({
           type: "POST",
           url: "api/delete-user.php",
           data: frmData,
-          callback: function(res) {
+          callback: function() {
             currentElementContainer.classList.add("deleted");
           }
         });
@@ -383,13 +361,13 @@ var page = {
     });
   },
 
+
   /**********************
    PRODUCTS
   **********************/
   addProduct: function() {
     page.checkForm(frmAddProduct, function(status) {
       if (status == "ok") {
-        page.activateMessage
         page.request({
           type: "POST",
           url: "api/add-product.php",
@@ -436,30 +414,15 @@ var page = {
         page.data.products.all = products;
         page.data.products.visible = products;
         page.renderProducts( initFiltersAndSorting );
-        
         function initFiltersAndSorting() {
-          /* This is close to becoming call-back hell but these functions
-          adds some eventlisteners for dom-elements that aren't present 
-          before the products have rendered. Therefor they will be called
-          the first time the products are rendered (and only the first time).
-          This is an effor to optimize code-efficiency and to eliminate
-          multiple eventlisteners from being placed on buttons. (And i dont
-          want to manually go and removeEventListener on every event and 
-          re adding them)
-          */
-          console.log("Initing product filters and sorting.");
           page.enableProductFiltering();
           page.enableProductSorting();
         }
       }
     });
-
-    
-
   },
   renderProducts: function(callback) {
-    console.log("Rendering products. Sorting: "+page.data.products.sorting)
-
+    //console.log("Rendering products. Sorting: "+page.data.products.sorting)
     var sProducts = "";
     var products = page.data.products.visible;
 
@@ -470,11 +433,12 @@ var page = {
     }
 
     if (products.length) {  
-      for (var i = 0; i<products.length; i++) {
+      for (var i = 0; i < products.length; i++) {
         // If user owns product
         var sEditProduct = ""
-        if ( page.data.currentUser.id == products[i].createdBy || 
-             page.data.currentUser.role == "admin" // <- Im guessing this is a major security flaw, because anyone can just change this value frontend
+        if ( 
+          page.data.currentUser.id == products[i].createdBy ||
+          page.data.currentUser.role == "admin" 
         ) {
           var sEditProduct = '<a class="edit-product btnEditProductLink" data-product-id="'+products[i].id+'">Edit</a>'
         }
@@ -565,19 +529,16 @@ var page = {
   },
   enableProductSorting: function() {
     btnSortAscending.addEventListener("click", function() {
-      console.log("btnSortAscending");
       page.data.products.sorting = "ascending";
       btnSortAscending.classList.add("selected");
       btnSortDecending.classList.remove("selected");
       page.renderProducts();
     })
     btnSortDecending.addEventListener("click", function() {
-      console.log("btnSortDescending");
       page.data.products.sorting = "descending";
       btnSortDecending.classList.add("selected");
       btnSortAscending.classList.remove("selected");
       page.renderProducts();
-      
     })
   },
   sortProducts: function(arrayToSort, sortingKey, sortingWay) {
@@ -591,7 +552,6 @@ var page = {
     });
     return arrayToSort;
   },
-
   attachFormEvents: function() {
     /**
      * This is a bit stupid, but in order for the script
@@ -627,12 +587,12 @@ var page = {
       btnDeleteProduct.addEventListener("click", this.deleteProduct);
     }
   },
-  init: function() {
-    this.IsUserSignedIn();
-  },
 
 
-  // Helpers
+
+  /**********************
+   HELPERS / UTILITIES
+  **********************/
   request: function( options ) {
     /**
      * Expected options:
@@ -678,7 +638,7 @@ var page = {
     }
 
   },
-  activateMessage(id) {
+  activateMessage: function(id) {
     var activeMessage = document.querySelectorAll(".message.active")
     for (var i = 0; i < activeMessage.length; i++) {
       activeMessage[i].classList.remove("active");
@@ -737,6 +697,19 @@ var page = {
     for (var i = 0; i < form.children.length; i++) {
       form.children[i].value = "";
     }
-  }
+  },
+  submitFormOnEnter: function() {
+    window.addEventListener("keydown", function(e) {
+      var btnSubmit = document.querySelector(".page.active .button.positive");
+      if (e.key === "Enter" && btnSubmit) {
+        btnSubmit.click();
+      }
+    });
+  },
+  init: function() {
+    this.IsUserSignedIn();
+    this.submitFormOnEnter();
+  },
 }
 page.init();
+})()
