@@ -1,4 +1,6 @@
 <?php
+include_once('inc_check-login.php');
+
 session_start();
 
 $sUser = $_SESSION['sUser'];
@@ -30,10 +32,5 @@ file_put_contents('../data/products.txt', $sProducts);
 echo '{
   "message":"succes"
 }';
-
-/* $sProduct = json_encode($jProduct);
-echo $sProduct; */
-//print_r($jProduct);
-
 
 ?>

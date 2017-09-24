@@ -1,12 +1,7 @@
 <?php
-session_start();
+include_once('inc_check-login.php');
 
-if ( !isset($_SESSION['sUser']) ) {
-  // User is not logged in. Stop script
-  // No need to waste server-resources for request by
-  // none-users
-  exit;
-}
+session_start();
 
 // Get all products
 $sProducts = file_get_contents('../data/products.txt');

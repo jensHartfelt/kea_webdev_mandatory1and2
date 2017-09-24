@@ -1,4 +1,6 @@
 <?php
+include_once('inc_check-login.php');
+
 session_start();
 
 // Get the id of the user to edit

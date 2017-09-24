@@ -1,7 +1,10 @@
 /**
- *  "page" could literally be named anything
- *  It's methods are accesible through page.method
- * 
+ * In theory and with lots of time, page could be named anything
+ * BUT im referencing some stuff inside page with page.<property>
+ * insted of this.<property> due to problems with 'this' being an
+ * event, and me having to acces that events properties. So if page
+ * were to be renamed one should do a find and replave for "page."
+ * and replace with "whatevernewname."
  * 
  */
 var page = {
@@ -15,7 +18,8 @@ var page = {
    * Data acts sort of like a store.
    * It's a primitive way of having a single source of truth, so that all 
    * "global" variables will only exist in one place. Data has no defined
-   * mutation methods, so data is just directly modified.
+   * mutation methods, so data is just directly modified which can lead to
+   * unpredictable outcome.
    */
   data: {
     currentUser: undefined, // <- will be set after request
@@ -127,7 +131,7 @@ var page = {
         page.attachFormEvents(); // This function can be re-called if something changes and you need to re-assign events      
         page.updatePageNavigation();
         page.goTo("view-products");
-        if (page.data.currentUser == "admin") {
+        if (page.data.currentUser.role == "admin") {
           console.log("User is admin. Getting all users...")
           page.getUsers();
         }
@@ -273,10 +277,7 @@ var page = {
     });
     function handleResponse(res) {
       page.data.currentUser = undefined;
-      page.getMenu();
-      page.getProducts();
-      page.goTo("landing-page");
-      //page.activateMessage(txtEditUserMessage);
+      page.getInterface();
     }
   },
   getUsers: function() {
@@ -437,7 +438,7 @@ var page = {
     
 
   },
-  renderProducts: function( callback ) {
+  renderProducts: function(callback) {
     console.log("Rendering products. Sorting: "+page.data.products.sorting)
 
     var sProducts = "";

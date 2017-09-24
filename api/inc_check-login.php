@@ -1,14 +1,15 @@
 <?php
-// Checks if user is logged in. Can be used in api's to make sure that request
-// only happens for logged in users.
 /*
-Doesn't really work. Make it work..
+  This should be included in all at the top of all private api's.
+  This script will exit the script exit if the user is not logged in
+  and output an error message.
 */
-
+session_start();
 if ( !isset($_SESSION['sUser']) ) {
-  // User is not logged in. Stop script
-  // No need to waste server-resources for request by
-  // none-users
-  /* exit; */
-}
+  echo '{
+    "status": "error",
+    "message": "You need to login to use this api"
+  }';
+  exit;
+} 
 ?>

@@ -1,4 +1,5 @@
 <?php 
+
 session_start();
 $sUser = $_SESSION['sUser'];
 $jResponse = json_decode("{}");
